@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Shop Online</title>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#f4f4f4;
+}
+
+nav{
+background:#333;
+padding:15px;
+}
+
+nav button{
+margin-right:10px;
+padding:8px 15px;
+cursor:pointer;
+}
+
+.page{
+display:none;
+padding:20px;
+}
+
+.active{
+display:block;
+}
+
+.products{
+display:flex;
+gap:20px;
+}
+
+.product{
+background:white;
+padding:15px;
+border-radius:8px;
+width:200px;
+box-shadow:0 0 5px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+button.buy{
+background:#28a745;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:5px;
+}
+
+.orders{
+margin-top:20px;
+background:white;
+padding:15px;
+border-radius:8px;
+}
+</style>
+
+</head>
+<body>
+
+<nav>
+<button onclick="showPage('home')">Trang chủ</button>
+<button onclick="showPage('login')">Đăng nhập</button>
+<button onclick="showPage('register')">Đăng ký</button>
+</nav>
+
+<div id="home" class="page active">
+
+<h2>Sản phẩm</h2>
+
+<div class="products">
+
+<div class="product">
+<h3>Mặt hàng 1</h3>
+<p>70.000đ</p>
+<button class="buy" onclick="order('Mặt hàng 1')">Đặt hàng</button>
+</div>
+
+<div class="product">
+<h3>Mặt hàng 2</h3>
+<p>140.000đ</p>
+<button class="buy" onclick="order('Mặt hàng 2')">Đặt hàng</button>
+</div>
+
+<div class="product">
+<h3>Mặt hàng 3</h3>
+<p>210.000đ</p>
+<button class="buy" onclick="order('Mặt hàng 3')">Đặt hàng</button>
+</div>
+
+</div>
+
+<div class="orders">
+<h3>Đơn hàng của bạn</h3>
+<ul id="orderList"></ul>
+</div>
+
+</div>
+
+<div id="login" class="page">
+
+<h2>Đăng nhập</h2>
+
+<input id="loginUser" placeholder="Tên đăng nhập"><br><br>
+<input id="loginPass" type="password" placeholder="Mật khẩu"><br><br>
+
+<button onclick="login()">Đăng nhập</button>
+
+</div>
+
+<div id="register" class="page">
+
+<h2>Đăng ký</h2>
+
+<input id="regUser" placeholder="Tên đăng nhập"><br><br>
+<input id="regPass" type="password" placeholder="Mật khẩu"><br><br>
+<input id="regEmail" placeholder="Email"><br><br>
+
+<button onclick="register()">Đăng ký</button>
+
+</div>
+
+<script>
+
+let currentUser=null
+
+function showPage(id){
+
+document.querySelectorAll(".page").forEach(p=>{
+p.classList.remove("active")
+})
+
+document.getElementById(id).classList.add("active")
+
+}
+
+function register(){
+
+let user=document.getElementById("regUser").value
+let pass=document.getElementById("regPass").value
+let email=document.getElementById("regEmail").value
+
+let users=JSON.parse(localStorage.getItem("users")||"[]")
+
+users.push({user,pass,email})
+
+localStorage.setItem("users",JSON.stringify(users))
+
+alert("Đăng ký thành công")
+
+showPage("login")
+
+}
+
+function login(){
+
+let user=document.getElementById("loginUser").value
+let pass=document.getElementById("loginPass").value
+
+let users=JSON.parse(localStorage.getItem("users")||"[]")
+
+let found=users.find(u=>u.user==user && u.pass==pass)
+
+if(found){
+
+currentUser=user
+alert("Đăng nhập thành công")
+
+showPage("home")
+
+loadOrders()
+
+}else{
+
+alert("Sai tài khoản")
+
+}
+
+}
+
+function order(product){
+
+if(!currentUser){
+
+alert("Bạn phải đăng nhập trước")
+
+showPage("login")
+
+return
+
+}
+
+let orders=JSON.parse(localStorage.getItem("orders")||"[]")
+
+orders.push({
+user:currentUser,
+product:product,
+status:"Chờ admin duyệt"
+})
+
+localStorage.setItem("orders",JSON.stringify(orders))
+
+loadOrders()
+
+}
+
+function loadOrders(){
+
+let orders=JSON.parse(localStorage.getItem("orders")||"[]")
+
+let list=document.getElementById("orderList")
+
+list.innerHTML=""
+
+orders.filter(o=>o.user==currentUser).forEach(o=>{
+
+let li=document.createElement("li")
+
+li.innerText=o.product+" - "+o.status
+
+list.appendChild(li)
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
